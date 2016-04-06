@@ -8,6 +8,7 @@ import React, {
 } from 'react-native';
 
 import Artwork from './Artwork'
+import AlbumList from './AlbumList'
 
 Axios = require('axios')
 firstBy = require('thenby')
@@ -28,9 +29,7 @@ export default class AlbumListScreen extends Component {
     this.state = {
       filter: "",
       albums: [],
-      dataSource: new ListView.DataSource({
-        rowHasChanged: (row1, row2) => row1.id !== row2.id,
-      })
+      matches: []
     }
   }
 
@@ -39,7 +38,7 @@ export default class AlbumListScreen extends Component {
       let albums = res.data.sort(orderFn.ascending);
       this.setState({
         albums: albums,
-        dataSource: this.state.dataSource.cloneWithRows(albums)
+        matches: albums
       });
     }).catch((err) => {
       alert(err)
@@ -48,7 +47,7 @@ export default class AlbumListScreen extends Component {
 
   handleChangeText(text) {
     let albums = filter(this.state.albums)({artistName: text}).sort(orderFn.ascending);
-    this.setState({dataSource: this.state.dataSource.cloneWithRows(albums)});
+    this.setState({matches: albums});
   }
 
   render() {
@@ -57,28 +56,8 @@ export default class AlbumListScreen extends Component {
         <View style={{padding: 10, backgroundColor: "#eee"}}>
           <TextInput style={{backgroundColor: "white", height: 38}} text={this.state.filter} onChangeText={this.handleChangeText.bind(this)}></TextInput>
         </View>
-
-         <ListView
-           style={{flex: 1}}
-           dataSource={this.state.dataSource}
-           renderRow={this.renderRow}
-           automaticallyAdjustContentInsets={false}
-         />
+        <AlbumList albums={this.state.matches}></AlbumList>
       </View>
-    )
-  }
-
-  renderRow(album) {
-    return (
-      <TouchableOpacity>
-        <View style={{flex: 1, flexDirection: "row", paddingHorizontal: 8, paddingVertical: 4}}>
-          <Artwork album={album} />
-          <View>
-            <Text style={{fontSize: 16, fontWeight: "bold"}}>{album.name}</Text>
-            <Text style={{fontSize: 14}}>{album.artistName}</Text>
-          </View>
-        </View>
-      </TouchableOpacity>
     )
   }
 }
