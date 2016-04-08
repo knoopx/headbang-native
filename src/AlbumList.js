@@ -30,7 +30,7 @@ export default class AlbumList extends Component {
        <ListView
          style={{flex: 1}}
          dataSource={this.state.dataSource}
-         renderRow={this.renderRow}
+         renderRow={this.renderRow.bind(this)}
          automaticallyAdjustContentInsets={false}
        />
     )
@@ -38,7 +38,7 @@ export default class AlbumList extends Component {
 
   renderRow(album) {
     return (
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => this.props.onPress(album)}>
         <View style={{flex: 1, flexDirection: "row", paddingHorizontal: 8, paddingVertical: 4}}>
           <Artwork album={album} />
           <View>

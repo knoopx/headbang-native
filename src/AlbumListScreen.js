@@ -10,6 +10,7 @@ import React, {
 import Artwork from './Artwork'
 import AlbumList from './AlbumList'
 
+RCTAudio = require('react-native-player')
 Axios = require('axios')
 firstBy = require('thenby')
 filter = require("./filter")
@@ -50,13 +51,23 @@ export default class AlbumListScreen extends Component {
     this.setState({matches: albums});
   }
 
+  playAlbum(album) {
+    Axios.get("http://192.168.1.216:3366/tracks", {params: {albumId: album.id}}).then((res) => {
+      tracks = res.data
+      RCTAudio.prepare(`http://192.168.1.216:3366/tracks/${tracks[0].id}/stream`, true)
+      RCTAudio.start()
+    }).catch((err) => {
+      alert(err)
+    });
+  }
+
   render() {
     return (
       <View style={{flex: 1, flexDirection: "column"}}>
         <View style={{padding: 10, backgroundColor: "#eee"}}>
           <TextInput style={{backgroundColor: "white", height: 38}} text={this.state.filter} onChangeText={this.handleChangeText.bind(this)}></TextInput>
         </View>
-        <AlbumList albums={this.state.matches}></AlbumList>
+        <AlbumList albums={this.state.matches} onPress={this.playAlbum}></AlbumList>
       </View>
     )
   }
