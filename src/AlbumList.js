@@ -12,10 +12,9 @@ import Artwork from './Artwork'
 export default class AlbumList extends Component {
   constructor(props) {
     super(props);
+    ds = new ListView.DataSource({rowHasChanged: this.rowHasChanged.bind(this) })
     this.state = {
-      dataSource: new ListView.DataSource({
-        rowHasChanged: (row1, row2) => row1.id !== row2.id,
-      })
+      dataSource: ds.cloneWithRows(props.albums)
     }
   }
 
@@ -25,9 +24,18 @@ export default class AlbumList extends Component {
     }
   }
 
+  rowHasChanged(row1, row2) {
+    return row1.id !== row2.id;
+  }
+
+  scrollTo(position) {
+    this.refs.listView.scrollTo(position)
+  }
+
   render() {
     return (
        <ListView
+         ref="listView"
          style={{flex: 1}}
          dataSource={this.state.dataSource}
          renderRow={this.renderRow.bind(this)}

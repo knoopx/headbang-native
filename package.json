@@ -9,6 +9,7 @@
     "axios": "^0.9.1",
     "react": "^0.14.8",
     "react-native": "^0.22.2",
+    "react-native-spinkit": "0.0.8",
     "sugar": "^1.4.1"
   },
   "devDependencies": {
