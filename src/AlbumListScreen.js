@@ -5,6 +5,7 @@ import React, {
   Text,
   TextInput,
   ToolbarAndroid,
+  ToastAndroid,
   TouchableOpacity
 } from 'react-native';
 
@@ -56,7 +57,7 @@ export default class AlbumListScreen extends Component {
       provider.getAlbums((err, albums) => {
         if (err) {
           this.setState({albums: [], matches: [], isLoading: false});
-          ToastAndroid.show(err.toString(), ToastAndroid.LONG);
+          ToastAndroid.show(err.data, ToastAndroid.LONG);
         } else {
           albums = albums.sort(orderFn.ascending)
           this.setState({albums: albums, matches: albums, isLoading: false});
@@ -90,7 +91,7 @@ export default class AlbumListScreen extends Component {
 
   applyFilter(nextFilter) {
     nextFilter = Object.assign(Object.assign({}, this.state.filter), nextFilter)
-    this.refs.albumList.scrollTo(0)
+    this.refs.albumList.scrollTo({x: 0, y: 0, animated: true})
     this.setState({
       filter: nextFilter,
       matches: filter(this.state.albums)(nextFilter).sort(orderFn.ascending)

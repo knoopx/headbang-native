@@ -4,6 +4,7 @@ import React, {
   ListView,
   Text,
   TextInput,
+  ToastAndroid,
   ToolbarAndroid,
   TouchableOpacity
 } from 'react-native';
@@ -14,7 +15,6 @@ import TrackList from './TrackList'
 import PlaybackService from './PlaybackService'
 
 Icon = require('react-native-vector-icons/FontAwesome')
-
 
 export default class AlbumScreen extends Component {
   constructor(props) {
@@ -29,7 +29,7 @@ export default class AlbumScreen extends Component {
     this.setState({isLoading: true}, () => {
       this.props.provider.getAlbumTracks(this.props.album, (err, tracks) => {
         if (err) {
-          ToastAndroid.show(err.toString(), ToastAndroid.LONG)
+          ToastAndroid.show(err.data, ToastAndroid.LONG)
         } else {
           this.setState({tracks: tracks.sortBy("number"), isLoading: false});
         }

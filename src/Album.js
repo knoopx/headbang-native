@@ -19,6 +19,7 @@ export default class Artwork extends Component {
       marginRight: 15, borderRadius: 3,
       borderWidth: 1, borderColor: "gray"
     }
+
     if (this.props.album.artwork) {
       return <Image source={{uri: this.props.album.artwork}} style={style} />
     } else {

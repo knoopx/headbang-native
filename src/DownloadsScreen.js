@@ -7,29 +7,34 @@ import React, {
   TouchableOpacity
 } from 'react-native';
 
+import Artwork from './Artwork'
 import ListItem from './ListItem'
 
-export default class DownloadsScreen extends Component {
-  static defaultProps = {
-    downloads: []
-  }
+ProgressBar = require('react-native-progress/Bar')
+shallowCompare = require('react-addons-shallow-compare')
 
+DownloadManager = require('./DownloadManager')
+
+export default class DownloadsScreen extends Component {
   constructor(props) {
     super(props);
     ds = new ListView.DataSource({rowHasChanged: this.rowHasChanged.bind(this) })
+
     this.state = {
-      dataSource: ds.cloneWithRows(props.downloads)
+      dataSource: ds.cloneWithRows(DownloadManager.active)
     }
+
+    DownloadManager.emitter.addListener("update", this.onUpdate.bind(this))
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.downloads) {
-      this.setState({dataSource: this.state.dataSource.cloneWithRows(nextProps.downloads)});
-    }
+  onUpdate(){
+    this.setState({
+      dataSource: this.state.dataSource.cloneWithRows(DownloadManager.active)
+    })
   }
 
   rowHasChanged(row1, row2) {
-    return row1.id !== row2.id;
+    return shallowCompare(this, row1, row2);
   }
 
   render() {
@@ -43,15 +48,20 @@ export default class DownloadsScreen extends Component {
     )
   }
 
-  renderRow(track) {
+  renderRow(item) {
     return (
-      <TouchableOpacity onPress={() => this.props.onPressTrack(track)}>
-        <ListItem>
-          <Text style={{fontSize: 16, width: 20, textAlign: "right", marginRight: 16}}>{track.number}</Text>
-          <Text style={{fontSize: 16, fontWeight: "bold", marginRight: 8}}>{track.name}</Text>
-            <Text style={{fontSize: 16, marginRight: 16}}>{track.artistName}</Text>
-        </ListItem>
-      </TouchableOpacity>
+      <ListItem>
+        <Artwork album={item.album} />
+        <View ref="container">
+          <View style={{flexDirection: "row", alignItems: "center", marginBottom: 2}}>
+            <Text style={{fontSize: 14, fontWeight: "bold", marginRight: 8}}>{item.album.name}</Text>
+            <Text style={{fontSize: 14}}>{item.album.artistName}</Text>
+          </View>
+
+          <Text style={{fontSize: 12, marginBottom: 2}}>Downloading track {item.pending} of {item.tracks.length}</Text>
+          <ProgressBar progress={item.pending/item.tracks.length} width={310} />
+        </View>
+      </ListItem>
     )
   }
 }

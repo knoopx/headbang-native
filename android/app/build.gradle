@@ -126,4 +126,5 @@ dependencies {
     compile "com.facebook.react:react-native:+"  // From node_modules
     compile project(':react-native-vector-icons')
     compile project(':react-native-player')
+    compile project(':react-native-fs')
 }

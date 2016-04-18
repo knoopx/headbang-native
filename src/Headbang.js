@@ -21,9 +21,9 @@ import RemoteProvider from './RemoteProvider'
 import List from './List'
 import ListItem from './ListItem'
 
+DownloadManager = require('./DownloadManager')
 Subscribable = require("Subscribable")
-
-Icon = require('react-native-vector-icons/Ionicons')
+Icon = require('react-native-vector-icons/FontAwesome')
 
 
 export default class Headbang extends Component {
@@ -114,20 +114,18 @@ export default class Headbang extends Component {
 
   onPressDownloadAlbum(provider, album){
     ToastAndroid.show("Downloading...", ToastAndroid.SHORT);
+    DownloadManager.add(provider, album)
   }
 
   onPressEnqueueAlbum(provider, album){
-    ToastAndroid.show("Playing...", ToastAndroid.SHORT);
   }
 
   onPressPlayAlbum(provider, album) {
     PlaybackService.playAlbum(provider, album)
-    ToastAndroid.show("Playing...", ToastAndroid.SHORT);
   }
 
   onPressPlayTrack(provider, album, track) {
     PlaybackService.playTrack(provider, album, track)
-    ToastAndroid.show("Playing...", ToastAndroid.SHORT);
   }
 
   onPressPause() {
@@ -135,19 +133,34 @@ export default class Headbang extends Component {
   }
 
   onPressPlay() {
-    ToastAndroid.show("Playing...", ToastAndroid.SHORT);
     PlaybackService.play()
   }
 
-  onActionSelected(index) {
-    alert(index)
+  renderPlaylistItem(item, index) {
+    return (
+      <ListItem>
+        <Text>{item.track.name}</Text>
+      </ListItem>
+    )
+  }
+
+  renderNowPlaying() {
+    return (
+      <List>{PlaybackService.playlist.map(this.renderPlaylistItem)}</List>
+    )
+  }
+
+  renderNowPlayingHandler(){
+    return (
+      <NowPlaying active={this.state.active} isPlaying={this.state.isPlaying} onPressPause={this.onPressPause.bind(this)} onPressPlay={this.onPressPlay.bind(this)}></NowPlaying>
+    )
   }
 
   render() {
     return (
       <DrawerLayoutAndroid ref="drawer" renderNavigationView={this.renderNavigationView.bind(this)} drawerWidth={300}>
         {this.renderNavigator()}
-        {this.state.active && <NowPlaying active={this.state.active} isPlaying={this.state.isPlaying} onPressPause={this.onPressPause.bind(this)} onPressPlay={this.onPressPlay.bind(this)}></NowPlaying>}
+        {this.state.active && this.renderNowPlayingHandler()}
       </DrawerLayoutAndroid>
     );
   }
@@ -171,26 +184,29 @@ export default class Headbang extends Component {
     )
   }
 
+  onPressDownloadMenuItem() {
+    this.refs.drawer.closeDrawer();
+    this.refs.navigator.replace({title: "Downloads", component: DownloadsScreen})
+  }
+
   renderNavigationView() {
     return (
       <View style={{flex: 1, backgroundColor: "white"}}>
         <View style={{flexDirection: "row", backgroundColor: "#eee", paddingHorizontal: 16, alignItems: "center", justifyContent: "space-between"}}>
           <Text style={{fontSize: 16}}>Sources</Text>
-          <TouchableOpacity style={{width: 48, height: 48, alignItems: "center", justifyContent: "center"}}><Icon name="plus" size={24}/></TouchableOpacity>
+          <TouchableOpacity style={{width: 48, height: 48, alignItems: "center", justifyContent: "center", marginRight: -16}}><Icon name="plus" size={24}/></TouchableOpacity>
         </View>
         <List>{this.props.providers.map(this.renderProviderItem.bind(this))}</List>
         <View style={{flexDirection: "row", backgroundColor: "#eee", paddingHorizontal: 16, height: 54, alignItems: "center", justifyContent: "space-between"}}>
           <Text style={{fontSize: 16}}>Other</Text>
         </View>
         <List>
-          <ListItem onPress={() => this.refs.navigator.push({title: "Downloads", component: DownloadsScreen})}>
-            <Icon name="android-download" size={24} style={{marginRight: 16}} />
-            <Text style={{fontSize: 18, fontWeight: "bold"}}>Downloads</Text>
-          </ListItem>
-          <ListItem>
-            <Icon name="android-settings" size={24} style={{marginRight: 16}} />
-            <Text style={{fontSize: 18, fontWeight: "bold"}}>Settings</Text>
-          </ListItem>
+          <TouchableOpacity onPress={this.onPressDownloadMenuItem.bind(this)}>
+            <ListItem>
+              <Icon name="cloud-download" size={24} style={{marginRight: 16}} />
+              <Text style={{fontSize: 18, fontWeight: "bold"}}>Downloads</Text>
+            </ListItem>
+          </TouchableOpacity>
         </List>
       </View>
     )
